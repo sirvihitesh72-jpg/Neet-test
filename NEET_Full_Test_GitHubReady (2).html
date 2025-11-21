@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>NEET Biological Classification — 20 min Test (Auto-start, Auto-submit, +4/-1)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font-family: Arial, sans-serif; margin:18px; line-height:1.45; color:#111;}
+  #container{max-width:900px;margin:0 auto;}
+  #timer{font-size:26px; font-weight:700; color:#b22222; margin-bottom:8px;}
+  h1{margin-bottom:6px; font-size:20px;}
+  .question{margin:12px 0; padding:10px; border-radius:6px; background:#fbfbfb; border:1px solid #eee;}
+  .qtext{margin-bottom:6px;}
+  .options label{display:block; margin:6px 0; cursor:pointer;}
+  #controls{margin-top:14px; margin-bottom:18px;}
+  button{padding:8px 12px; border-radius:6px; border:1px solid #888; background:#fff; cursor:pointer;}
+  button:disabled{opacity:0.6; cursor:not-allowed;}
+  #result{margin-top:18px; padding:12px; border-radius:6px; background:#f7f9fc; border:1px solid #e6eef8;}
+  .correct{color:green; font-weight:700;}
+  .wrong{color:red; font-weight:700;}
+  .answer-key{margin-top:10px;}
+  @media (max-width:600px){ body{margin:12px;} #container{padding:0 6px;} }
+</style>
+<script>
+// --- CONFIG ---
+const DURATION_SECONDS = 20 * 60; // 20 minutes
+const ANSWER_KEY = {
+  "q1":"C","q2":"D","q3":"B","q4":"C","q5":"B","q6":"C","q7":"C","q8":"C","q9":"B","q10":"C",
+  "q11":"B","q12":"C","q13":"B","q14":"A","q15":"A","q16":"A","q17":"D","q18":"A","q19":"A","q20":"A",
+  "q21":"A","q22":"D","q23":"C","q24":"A","q25":"A","q26":"A","q27":"A","q28":"A","q29":"A","q30":"A"
+};
+// --- END CONFIG ---
+
+let timeLeft = DURATION_SECONDS;
+let timerInterval = null;
+let submitted = false;
+
+function startTimer(){
+  const timerEl = document.getElementById('timer');
+  updateTimerText();
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+    updateTimerText();
+    if(timeLeft < 0){
+      clearInterval(timerInterval);
+      if(!submitted) autoSubmit();
+    }
+  },1000);
+}
+
+function updateTimerText(){
+  const t = Math.max(0, timeLeft);
+  const m = Math.floor(t/60);
+  const s = t%60;
+  document.getElementById('timer').textContent = m.toString().padStart(2,'0') + ':' + s.toString().padStart(2,'0');
+}
+
+function disableAllInputs(){
+  const inputs = document.querySelectorAll('input[type="radio"]');
+  inputs.forEach(i => i.disabled = true);
+  document.getElementById('submitBtn').disabled = true;
+}
+
+function autoSubmit(){
+  if(submitted) return;
+  submitted = true;
+  disableAllInputs();
+  alert('⏳ TIME UP! Your test has been auto-submitted.');
+  processResults();
+}
+
+function submitExam(){
+  if(submitted) return;
+  if(!confirm('Are you sure you want to submit now?')) return;
+  submitted = true;
+  clearInterval(timerInterval);
+  disableAllInputs();
+  processResults();
+}
+
+function processResults(){
+  const total = Object.keys(ANSWER_KEY).length;
+  let score = 0;
+  let details = [];
+  for(let i=1;i<=total;i++){
+    const qid = 'q'+i;
+    const selected = document.querySelector('input[name="'+qid+'"]:checked');
+    const selVal = selected ? selected.value : null;
+    const correct = ANSWER_KEY[qid];
+    if(selVal === correct){
+      score += 4;
+      details.push({q:i, selected: selVal, correct: correct, result: 'Correct'});
+    } else if(selVal === null){
+      // no change
+      details.push({q:i, selected: 'No answer', correct: correct, result: 'Unanswered'});
+    } else {
+      score -= 1;
+      details.push({q:i, selected: selVal, correct: correct, result: 'Wrong'});
+    }
+  }
+
+  // Cap minimum score at 0 if you prefer (NEET doesn't usually cap negative, but keeping raw score)
+  // const displayScore = Math.max(0, score);
+  const maxMarks = total * 4;
+  const res = document.getElementById('result');
+  res.innerHTML = '<h3>Result</h3>';
+  res.innerHTML += '<p><strong>Score: ' + score + ' / ' + maxMarks + '</strong></p>';
+  res.innerHTML += '<p><em>(+4 for correct, -1 for wrong, 0 for unanswered)</em></p>';
+  res.innerHTML += '<div class="answer-key"><strong>Question-wise:</strong><ol>';
+  details.forEach(d=>{
+    const mark = (d.result==='Correct')? '<span class="correct">Correct</span>' : (d.result==='Wrong'? '<span class="wrong">Wrong</span>' : '<span>Unanswered</span>');
+    res.innerHTML += '<li>Q'+d.q+' — Your: ' + d.selected + ' | Correct: ' + d.correct + ' → ' + mark + '</li>';
+  });
+  res.innerHTML += '</ol></div>';
+  window.scrollTo(0,document.body.scrollHeight);
+}
+
+// Start timer when page loads
+window.onload = function(){
+  startTimer();
+}
+</script>
+</head>
+<body>
+<div id="container">
+<h1>NEET Biological Classification — Full Test</h1>
+<div id="timer">20:00</div>
+<p><em>Timer starts automatically when the page opens. When time is up the test will be auto-submitted and answers will be locked. Scoring: +4 for correct, -1 for wrong, 0 for unanswered. Total marks = 120.</em></p>
+
+<form id="examForm" onsubmit="event.preventDefault(); submitExam();">
+
+<!-- Questions (1–30) -->
+<div class="question" id="q1">
+  <div class="qtext"><strong>1.</strong> Which of the following statements is not correct?</div>
+  <div class="options">
+    <label><input type="radio" name="q1" value="A"> A. Kingdom Monera includes all prokaryotes.</label>
+    <label><input type="radio" name="q1" value="B"> B. Euglenoids are placed in Kingdom Protista.</label>
+    <label><input type="radio" name="q1" value="C"> C. Slime moulds are photosynthetic Protists.</label>
+    <label><input type="radio" name="q1" value="D"> D. Cyanobacteria are capable of nitrogen fixation.</label>
+  </div>
+</div>
+
+<div class="question" id="q2">
+  <div class="qtext"><strong>2.</strong> Which of the following organisms is incorrectly matched with its group?</div>
+  <div class="options">
+    <label><input type="radio" name="q2" value="A"> A. Amoeba – Protozoan</label>
+    <label><input type="radio" name="q2" value="B"> B. Penicillium – Ascomycete</label>
+    <label><input type="radio" name="q2" value="C"> C. Methanogens – Archaebacteria</label>
+    <label><input type="radio" name="q2" value="D"> D. Paramecium – Chrysophyte</label>
+  </div>
+</div>
+
+<div class="question" id="q3">
+  <div class="qtext"><strong>3.</strong> Which of the following is correct about Mycoplasma?</div>
+  <div class="options">
+    <label><input type="radio" name="q3" value="A"> A. They have a rigid cell wall</label>
+    <label><input type="radio" name="q3" value="B"> B. They are the smallest living cells</label>
+    <label><input type="radio" name="q3" value="C"> C. They are only anaerobic</label>
+    <label><input type="radio" name="q3" value="D"> D. They possess chlorophyll</label>
+  </div>
+</div>
+
+<div class="question" id="q4">
+  <div class="qtext"><strong>4.</strong> Which is not a feature of Archaebacteria?</div>
+  <div class="options">
+    <label><input type="radio" name="q4" value="A"> A. Ability to survive extreme conditions</label>
+    <label><input type="radio" name="q4" value="B"> B. Different membrane lipid composition</label>
+    <label><input type="radio" name="q4" value="C"> C. Peptidoglycan-rich cell wall similar to bacteria</label>
+    <label><input type="radio" name="q4" value="D"> D. Presence in hot springs</label>
+  </div>
+</div>
+
+<div class="question" id="q5">
+  <div class="qtext"><strong>5.</strong> Identify the statement that is correct for fungi:</div>
+  <div class="options">
+    <label><input type="radio" name="q5" value="A"> A. They are obligate photosynthetic organisms</label>
+    <label><input type="radio" name="q5" value="B"> B. Their cell walls are made of chitin</label>
+    <label><input type="radio" name="q5" value="C"> C. They store food as glycogen and cellulose</label>
+    <label><input type="radio" name="q5" value="D"> D. All fungi are unicellular</label>
+  </div>
+</div>
+
+<div class="question" id="q6">
+  <div class="qtext"><strong>6.</strong> Which of the following Protists are unicellular and photosynthetic?</div>
+  <div class="options">
+    <label><input type="radio" name="q6" value="A"> A. Dinoflagellates</label>
+    <label><input type="radio" name="q6" value="B"> B. Slime moulds</label>
+    <label><input type="radio" name="q6" value="C"> C. Euglenoids</label>
+    <label><input type="radio" name="q6" value="D"> D. Protozoans</label>
+  </div>
+</div>
+
+<div class="question" id="q7">
+  <div class="qtext"><strong>7.</strong> Which feature is incorrect for cyanobacteria?</div>
+  <div class="options">
+    <label><input type="radio" name="q7" value="A"> A. They are unicellular or colonial</label>
+    <label><input type="radio" name="q7" value="B"> B. Their colonies are surrounded by gelatinous sheath</label>
+    <label><input type="radio" name="q7" value="C"> C. They lack chlorophyll-a</label>
+    <label><input type="radio" name="q7" value="D"> D. Some forms fix nitrogen</label>
+  </div>
+</div>
+
+<div class="question" id="q8">
+  <div class="qtext"><strong>8.</strong> Which one is correct for fungi reproduction?</div>
+  <div class="options">
+    <label><input type="radio" name="q8" value="A"> A. Only sexual</label>
+    <label><input type="radio" name="q8" value="B"> B. Only vegetative</label>
+    <label><input type="radio" name="q8" value="C"> C. Both asexual and sexual</label>
+    <label><input type="radio" name="q8" value="D"> D. Only binary fission</label>
+  </div>
+</div>
+
+<div class="question" id="q9">
+  <div class="qtext"><strong>9.</strong> A typical basidiocarp is found in:</div>
+  <div class="options">
+    <label><input type="radio" name="q9" value="A"> A. Rhizopus</label>
+    <label><input type="radio" name="q9" value="B"> B. Agaricus</label>
+    <label><input type="radio" name="q9" value="C"> C. Yeast</label>
+    <label><input type="radio" name="q9" value="D"> D. Penicillium</label>
+  </div>
+</div>
+
+<div class="question" id="q10">
+  <div class="qtext"><strong>10.</strong> Virus has:</div>
+  <div class="options">
+    <label><input type="radio" name="q10" value="A"> A. Only DNA</label>
+    <label><input type="radio" name="q10" value="B"> B. Only RNA</label>
+    <label><input type="radio" name="q10" value="C"> C. Either DNA or RNA</label>
+    <label><input type="radio" name="q10" value="D"> D. Both DNA and RNA in same virion</label>
+  </div>
+</div>
+
+<div class="question" id="q11">
+  <div class="qtext"><strong>11.</strong> The DNA–protein infectious agent is:</div>
+  <div class="options">
+    <label><input type="radio" name="q11" value="A"> A. Viroid</label>
+    <label><input type="radio" name="q11" value="B"> B. Virus</label>
+    <label><input type="radio" name="q11" value="C"> C. Prion</label>
+    <label><input type="radio" name="q11" value="D"> D. Mycoplasma</label>
+  </div>
+</div>
+
+<div class="question" id="q12">
+  <div class="qtext"><strong>12.</strong> Which is correct about slime moulds?</div>
+  <div class="options">
+    <label><input type="radio" name="q12" value="A"> A. They lack true cell walls</label>
+    <label><input type="radio" name="q12" value="B"> B. They are obligate parasites</label>
+    <label><input type="radio" name="q12" value="C"> C. Their vegetative phase is plasmodium</label>
+    <label><input type="radio" name="q12" value="D"> D. They are always unicellular</label>
+  </div>
+</div>
+
+<div class="question" id="q13">
+  <div class="qtext"><strong>13.</strong> Identify the incorrect statement(s):<br>1. Cyanobacteria have heterocysts for nitrogen fixation.<br>2. Mycoplasma survives without oxygen only.<br>3. Euglenoids have pellicle instead of a cell wall.<br>4. Viruses replicate only inside host cells.</div>
+  <div class="options">
+    <label><input type="radio" name="q13" value="A"> A. 1 and 2</label>
+    <label><input type="radio" name="q13" value="B"> B. 2 only</label>
+    <label><input type="radio" name="q13" value="C"> C. 2 and 4</label>
+    <label><input type="radio" name="q13" value="D"> D. 2 and 3</label>
+  </div>
+</div>
+
+<div class="question" id="q14">
+  <div class="qtext"><strong>14.</strong> Which of the following is correct?<br>1. Basidiomycetes produce basidiospores.<br>2. Ascomycetes produce conidiospores.<br>3. Protozoans are always photosynthetic.<br>4. Chrysophytes include diatoms.</div>
+  <div class="options">
+    <label><input type="radio" name="q14" value="A"> A. 1,2,4</label>
+    <label><input type="radio" name="q14" value="B"> B. 2,3</label>
+    <label><input type="radio" name="q14" value="C"> C. 1,4</label>
+    <label><input type="radio" name="q14" value="D"> D. 3 only</label>
+  </div>
+</div>
+
+<div class="question" id="q15">
+  <div class="qtext"><strong>15.</strong> Identify the incorrect statements:<br>1. Dinoflagellates have two flagella.<br>2. Slime moulds form fruiting bodies in unfavorable conditions.<br>3. Archaebacteria have typical bacterial peptidoglycan.<br>4. Viroids have protein coat.</div>
+  <div class="options">
+    <label><input type="radio" name="q15" value="A"> A. 3 and 4</label>
+    <label><input type="radio" name="q15" value="B"> B. 4 only</label>
+    <label><input type="radio" name="q15" value="C"> C. 2,3</label>
+    <label><input type="radio" name="q15" value="D"> D. 1,4</label>
+  </div>
+</div>
+
+<div class="question" id="q16">
+  <div class="qtext"><strong>16.</strong> Choose the not incorrect statements:<br>1. Yeast reproduces by budding.<br>2. Rhizopus forms non-motile spores.<br>3. Cyanobacteria are eukaryotes.<br>4. Chrysophytes have cellulosic cell wall.</div>
+  <div class="options">
+    <label><input type="radio" name="q16" value="A"> A. 1,2</label>
+    <label><input type="radio" name="q16" value="B"> B. 1,3</label>
+    <label><input type="radio" name="q16" value="C"> C. 2,4</label>
+    <label><input type="radio" name="q16" value="D"> D. 1,4</label>
+  </div>
+</div>
+
+<div class="question" id="q17">
+  <div class="qtext"><strong>17.</strong> Which of the following statements is incorrect?</div>
+  <div class="options">
+    <label><input type="radio" name="q17" value="A"> A. Mycoplasma can survive without oxygen.</label>
+    <label><input type="radio" name="q17" value="B"> B. Archaebacteria include halophiles and thermophiles.</label>
+    <label><input type="radio" name="q17" value="C"> C. Diatoms have silica in their cell walls.</label>
+    <label><input type="radio" name="q17" value="D"> D. Dinoflagellates lack pigment</label>
+  </div>
+</div>
+
+<div class="question" id="q18">
+  <div class="qtext"><strong>18.</strong> Identify the correct statement(s):<br>1. Prions are infectious proteins.<br>2. Viroids have free RNA.<br>3. Some cyanobacteria are symbiotic.<br>4. All viruses have both DNA and RNA.</div>
+  <div class="options">
+    <label><input type="radio" name="q18" value="A"> A. 1,2,3</label>
+    <label><input type="radio" name="q18" value="B"> B. 2,3</label>
+    <label><input type="radio" name="q18" value="C"> C. 1,3</label>
+    <label><input type="radio" name="q18" value="D"> D. 1,2,4</label>
+  </div>
+</div>
+
+<div class="question" id="q19">
+  <div class="qtext"><strong>19.</strong> Assertion (A): Archaebacteria can survive in extreme habitats.<br>Reason (R): Their cell membrane has branched chain lipids.</div>
+  <div class="options">
+    <label><input type="radio" name="q19" value="A"> A = both correct, R explains A;</label>
+    <label><input type="radio" name="q19" value="B"> B = both correct, R does NOT explain A;</label>
+    <label><input type="radio" name="q19" value="C"> C = A correct, R incorrect;</label>
+    <label><input type="radio" name="q19" value="D"> D = A incorrect, R correct</label>
+  </div>
+</div>
+
+<div class="question" id="q20">
+  <div class="qtext"><strong>20.</strong> Assertion (A): Euglenoids behave like plants in sunlight.<br>Reason (R): They have chlorophyll like higher plants.</div>
+  <div class="options">
+    <label><input type="radio" name="q20" value="A"> A = both correct, R explains A;</label>
+    <label><input type="radio" name="q20" value="B"> B = both correct, R does NOT explain A;</label>
+    <label><input type="radio" name="q20" value="C"> C = A correct, R incorrect;</label>
+    <label><input type="radio" name="q20" value="D"> D = A incorrect, R correct</label>
+  </div>
+</div>
+
+<div class="question" id="q21">
+  <div class="qtext"><strong>21.</strong> Assertion (A): Slime moulds form aggregation during starvation.<br>Reason (R): Aggregation helps them form spores.</div>
+  <div class="options">
+    <label><input type="radio" name="q21" value="A"> A = both correct, R explains A;</label>
+    <label><input type="radio" name="q21" value="B"> B = both correct, R does NOT explain A;</label>
+    <label><input type="radio" name="q21" value="C"> C = A correct, R incorrect;</label>
+    <label><input type="radio" name="q21" value="D"> D = A incorrect, R correct</label>
+  </div>
+</div>
+
+<div class="question" id="q22">
+  <div class="qtext"><strong>22.</strong> Assertion (A): Viruses are considered living.<br>Reason (R): They replicate only inside host cells.</div>
+  <div class="options">
+    <label><input type="radio" name="q22" value="A"> A = both correct, R explains A;</label>
+    <label><input type="radio" name="q22" value="B"> B = both correct, R does NOT explain A;</label>
+    <label><input type="radio" name="q22" value="C"> C = A correct, R incorrect;</label>
+    <label><input type="radio" name="q22" value="D"> D = A incorrect, R correct</label>
+  </div>
+</div>
+
+<div class="question" id="q23">
+  <div class="qtext"><strong>23.</strong> Assertion (A): Penicillium belongs to Ascomycetes.<br>Reason (R): Ascomycetes include mostly aquatic members.</div>
+  <div class="options">
+    <label><input type="radio" name="q23" value="A"> A = both correct, R explains A;</label>
+    <label><input type="radio" name="q23" value="B"> B = both correct, R does NOT explain A;</label>
+    <label><input type="radio" name="q23" value="C"> C = A correct, R incorrect;</label>
+    <label><input type="radio" name="q23" value="D"> D = A incorrect, R correct</label>
+  </div>
+</div>
+
+<div class="question" id="q24">
+  <div class="qtext"><strong>24.</strong> Assertion (A): Mycoplasma passes through bacterial filters.<br>Reason (R): Mycoplasma lacks a cell wall.</div>
+  <div class="options">
+    <label><input type="radio" name="q24" value="A"> A = both correct, R explains A;</label>
+    <label><input type="radio" name="q24" value="B"> B = both correct, R does NOT explain A;</label>
+    <label><input type="radio" name="q24" value="C"> C = A correct, R incorrect;</label>
+    <label><input type="radio" name="q24" value="D"> D = A incorrect, R correct</label>
+  </div>
+</div>
+
+<div class="question" id="q25">
+  <div class="qtext"><strong>25.</strong> Assertion (A): Most fungi are heterotrophic.<br>Reason (R): Fungi do not possess chlorophyll.</div>
+  <div class="options">
+    <label><input type="radio" name="q25" value="A"> A = both correct, R explains A;</label>
+    <label><input type="radio" name="q25" value="B"> B = both correct, R does NOT explain A;</label>
+    <label><input type="radio" name="q25" value="C"> C = A correct, R incorrect;</label>
+    <label><input type="radio" name="q25" value="D"> D = A incorrect, R correct</label>
+  </div>
+</div>
+
+<div class="question" id="q26">
+  <div class="qtext"><strong>26.</strong> Match the group with its characteristic:<br>
+A. Cyanobacteria<br>B. Archaebacteria<br>C. Dinoflagellates<br>D. Slime moulds<br>1. Two flagella<br>2. Gelatinous sheath<br>3. Extreme habitats<br>4. Plasmodium-like body<br>
+Options:<br>
+A. A-2, B-3, C-1, D-4<br>
+B. A-3, B-1, C-4, D-2<br>
+C. A-4, B-2, C-3, D-1<br>
+D. A-1, B-4, C-2, D-3
+  </div>
+  <div class="options">
+    <label><input type="radio" name="q26" value="A"> A. A-2, B-3, C-1, D-4</label>
+    <label><input type="radio" name="q26" value="B"> B. A-3, B-1, C-4, D-2</label>
+    <label><input type="radio" name="q26" value="C"> C. A-4, B-2, C-3, D-1</label>
+    <label><input type="radio" name="q26" value="D"> D. A-1, B-4, C-2, D-3</label>
+  </div>
+</div>
+
+<div class="question" id="q27">
+  <div class="qtext"><strong>27.</strong> Match the fungal group with examples:<br>
+A. Zygomycetes<br>B. Ascomycetes<br>C. Basidiomycetes<br>D. Deuteromycetes<br>
+1. Agaricus<br>2. Rhizopus<br>3. Penicillium<br>4. Alternaria
+  </div>
+  <div class="options">
+    <label><input type="radio" name="q27" value="A"> A. A-2, B-3, C-1, D-4</label>
+    <label><input type="radio" name="q27" value="B"> B. A-3, B-2, C-4, D-1</label>
+    <label><input type="radio" name="q27" value="C"> C. A-4, B-1, C-2, D-3</label>
+    <label><input type="radio" name="q27" value="D"> D. A-2, B-1, C-3, D-4</label>
+  </div>
+</div>
+
+<div class="question" id="q28">
+  <div class="qtext"><strong>28.</strong> Match the microorganism with its feature:<br>
+A. Mycoplasma<br>B. Diatoms<br>C. Euglena<br>D. Viroids<br>
+1. Siliceous frustules<br>2. Smallest living cells<br>3. RNA without protein coat<br>4. Pellicle
+  </div>
+  <div class="options">
+    <label><input type="radio" name="q28" value="A"> A. A-2, B-1, C-4, D-3</label>
+    <label><input type="radio" name="q28" value="B"> B. A-4, B-2, C-1, D-3</label>
+    <label><input type="radio" name="q28" value="C"> C. A-3, B-4, C-2, D-1</label>
+    <label><input type="radio" name="q28" value="D"> D. A-1, B-3, C-4, D-2</label>
+  </div>
+</div>
+
+<div class="question" id="q29">
+  <div class="qtext"><strong>29.</strong> Match the Protist group with nature:<br>
+A. Chrysophytes<br>B. Dinoflagellates<br>C. Euglenoids<br>D. Protozoans<br>
+1. Plant-like<br>2. Animal-like<br>3. Red tides<br>4. Freshwater, pellicle
+  </div>
+  <div class="options">
+    <label><input type="radio" name="q29" value="A"> A. A-1, B-3, C-4, D-2</label>
+    <label><input type="radio" name="q29" value="B"> B. A-2, B-1, C-3, D-4</label>
+    <label><input type="radio" name="q29" value="C"> C. A-4, B-2, C-1, D-3</label>
+    <label><input type="radio" name="q29" value="D"> D. A-1, B-4, C-2, D-3</label>
+  </div>
+</div>
+
+<div class="question" id="q30">
+  <div class="qtext"><strong>30.</strong> Match the organism with its classification:<br>
+A. Methanogens<br>B. Yeast<br>C. Paramecium<br>D. Lichen<br>
+1. Symbiotic association<br>2. Archeabacteria<br>3. Unicellular fungus<br>4. Protozoan
+  </div>
+  <div class="options">
+    <label><input type="radio" name="q30" value="A"> A. A-2, B-3, C-4, D-1</label>
+    <label><input type="radio" name="q30" value="B"> B. A-3, B-1, C-2, D-4</label>
+    <label><input type="radio" name="q30" value="C"> C. A-4, B-2, C-3, D-1</label>
+    <label><input type="radio" name="q30" value="D"> D. A-1, B-4, C-2, D-3</label>
+  </div>
+</div>
+
+<div id="controls">
+  <button type="button" id="submitBtn" onclick="submitExam()">Submit Now</button>
+</div>
+
+</form>
+
+<div id="result"></div>
+</div>
+</body>
+</html>
